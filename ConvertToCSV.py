@@ -1,0 +1,147 @@
+import sys
+import os
+import json
+import argparse
+
+def ProgressBar(count, total):
+  bar_len = 100
+  filled_len = int(round(bar_len * count / float(total)))
+
+  percents = round(100.0 * count / float(total), 1)
+  bar = '█' * filled_len + '░' * (bar_len - filled_len)
+
+  sys.stdout.write(f'{bar} {percents}%\r')
+  sys.stdout.flush()
+
+def WriteString(app, key):
+  value = ''
+  if key in app:
+    value = str(app[key]).replace('"', '').replace('\n', ' ').replace('\r', ' ').strip()
+  return f'"{value}"'
+
+def WriteStringArray(app, key):
+  values = []
+  for value in app[key]:
+    values.append(value.replace('"', '').replace('\n', ' ').replace('\r', ' ').strip())
+
+  text = ','.join(values)
+  return f'"{text}"'
+
+def WriteKey(app, key):
+  return str(app[key]) if key in app else '0'
+
+print(f'Convert JSON to CSV {__version__} by {__author__}.')
+parser = argparse.ArgumentParser(description='Convert JSON to CSV.')
+parser.add_argument('-f', '--file', type=str, default='games.json', help='Dataset file name')
+args = parser.parse_args()
+
+dataset = {}
+
+filename = args.file
+if os.path.exists(filename):
+  print(f'Loading dataset.')
+  with open(filename, 'r', encoding='utf-8') as fin:
+    text = fin.read()
+    if len(text) > 0:
+      dataset = json.loads(text)
+
+  print(f'Dataset with {len(dataset)} games loaded.')
+
+  with open('games.csv', 'w', encoding="utf-8") as fin:
+    header = [
+      'AppID',
+      'Name',
+      'Release date',
+      'Estimated owners',
+      'Peak CCU',
+      'Required age',
+      'Price',
+      'DLC count',
+      'About the game',
+      'Supported languages',
+      'Full audio languages',
+      'Reviews',
+      'Header image',
+      'Website',
+      'Support url',
+      'Support email',
+      'Windows',
+      'Mac',
+      'Linux',
+      'Metacritic score',
+      'Metacritic url',
+      'User score',
+      'Positive',
+      'Negative',
+      'Score rank',
+      'Achievements',
+      'Recommendations',
+      'Notes',
+      'Average playtime forever',
+      'Average playtime two weeks',
+      'Median playtime forever',
+      'Median playtime two weeks',
+      'Developers',
+      'Publishers',
+      'Categories',
+      'Genres',
+      'Tags',
+      'Screenshots',
+      'Movies'
+    ]
+
+    fin.write(','.join(header) + '\n')
+
+    count = 0
+    total = len(dataset)
+    for appID in dataset:
+      app = dataset[appID]
+
+      data = f"{appID},"
+      data += f"{WriteString(app, 'name')},"
+      data += f"{WriteString(app, 'release_date')},"
+      data += f"{WriteString(app, 'estimated_owners')},"
+      data += f"{WriteKey(app, 'peak_ccu')},"
+      data += f"{WriteKey(app, 'required_age')},"
+      data += f"{WriteKey(app, 'price')},"
+      data += f"{WriteKey(app, 'dlc_count')},"
+      data += f"{WriteString(app, 'about_the_game')},"
+      data += f"{WriteString(app, 'supported_languages')},"
+      data += f"{WriteString(app, 'full_audio_languages')},"
+      data += f"{WriteString(app, 'reviews')},"
+      data += f"{WriteString(app, 'header_image')},"
+      data += f"{WriteString(app, 'website')},"
+      data += f"{WriteString(app, 'support_url')},"
+      data += f"{WriteString(app, 'support_email')},"
+      data += f"{WriteKey(app, 'windows')},"
+      data += f"{WriteKey(app, 'mac')},"
+      data += f"{WriteKey(app, 'linux')},"
+      data += f"{WriteKey(app, 'metacritic_score')},"
+      data += f"{WriteString(app, 'metacritic_url')},"
+      data += f"{WriteKey(app, 'user_score')},"
+      data += f"{WriteKey(app, 'positive')},"
+      data += f"{WriteKey(app, 'negative')},"
+      data += f"{WriteString(app, 'score_rank')},"
+      data += f"{WriteKey(app, 'achievements')},"
+      data += f"{WriteKey(app, 'recommendations')},"
+      data += f"{WriteString(app, 'notes')},"
+      data += f"{WriteKey(app, 'average_playtime_forever')},"
+      data += f"{WriteKey(app, 'average_playtime_2weeks')},"
+      data += f"{WriteKey(app, 'median_playtime_forever')},"
+      data += f"{WriteKey(app, 'median_playtime_2weeks')},"
+      data += f"{WriteStringArray(app, 'developers')},"
+      data += f"{WriteStringArray(app, 'publishers')},"
+      data += f"{WriteStringArray(app, 'categories')},"
+      data += f"{WriteStringArray(app, 'genres')},"
+      data += f"{WriteStringArray(app, 'tags')},"
+      data += f"{WriteStringArray(app, 'screenshots')},"
+      data += f"{WriteStringArray(app, 'movies')}"
+      data += "\n"
+
+      fin.write(data)
+      count += 1
+      ProgressBar(count, total)
+  
+    print('\nDone.')
+else:
+  print(f'Dataset file \'{args.file}\' not found.')
