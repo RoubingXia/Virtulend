@@ -6,7 +6,13 @@ The scraper of Virtulend which will get all VR apps information from Steam
 
 `docker -version`
 
-Execute the scraper by following commands
+Clone the repo to your local, replace the **git_repo_link** to the actual line of current repo
+
+
+`git clone git_repo_link`
+
+
+Execute the scraper by following commands, replace **YourLocalPath** to you actual local path
 
 `docker build -f docker/Dockerfile . -t steamscraper`
 
