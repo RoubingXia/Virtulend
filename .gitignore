@@ -1,0 +1,40 @@
+# Ignore compiled Python files
+*.pyc
+__pycache__/
+
+# Ignore virtual environment directories
+venv/
+env/
+.env/
+
+# Ignore package installation files
+*.egg-info/
+dist/
+build/
+
+# Ignore logs and temporary files
+*.log
+*.swp
+*.swo
+*~
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE-specific files and directories
+.idea/
+.vscode/
+
+# Ignore user-specific files
+*.bak
+*.tmp
+
+# Ignore sensitive or environment-specific information
+#secret.ini
+#config.ini
+
+# Exclude specific files or directories
+output/*
+#path/to/directory/
+
