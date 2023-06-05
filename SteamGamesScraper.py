@@ -15,7 +15,7 @@ from ssl import SSLError
 
 import requests
 
-BASEURL = "https://store.steampowered.com/search/?term=VR+Education"
+BASEURL = "https://store.steampowered.com/search/?sort_by={}&term={}"
 DEFAULT_OUTFILE = 'games.json'
 APPLIST_FILE = 'applist.json'
 DISCARTED_FILE = 'discarted.json'
@@ -30,8 +30,8 @@ INFO = 0
 WARNING = 1
 ERROR = 2
 EXCEPTION = 3
-
-
+KEY_WORDS = ['VR+Education', 'VR+Medical', 'VR+Medical', 'VR+Math', 'VR+Construction', 'VR+Chamistry']
+SORT_MODELS = ['Relevance','Released_DESC', 'Name_ASC', 'Price_ASC', 'Price_DESC', 'DeckCompatDate_DESC']
 def Log(level, message):
     '''
     Format and print a log message.
@@ -41,15 +41,18 @@ def Log(level, message):
 
 def get_url_content(url):
     response = requests.get(url)
-    if response.status_code == 200:
-        return response.text
-    else:
+    if response.status_code != 200:
         print(f"Error accessing URL. Status code: {response.status_code}")
-        return None
+    data = response.text
+    return data
 
+def clear_file_content(filename):
+    with open(filename, 'w', encoding='utf-8') as file:
+        file.write("")
+    print(f"Clear content of {filename} successfully!")
 
 def save_content_to_file(content, filename):
-    with open(filename, 'w', encoding='utf-8') as file:
+    with open(filename, 'a', encoding='utf-8') as file:
         file.write(content)
     print(f"Content saved to {filename} successfully!")
 
@@ -69,6 +72,41 @@ def extract_app_ids_from_file(file_path, output_file_path):
 
     print(f"App IDs written to {output_file_path}")
 
+def get_appid_list():
+    # Steam API endpoint for getting the list of apps
+    url = 'http://api.steampowered.com/ISteamApps/GetAppList/v0002/'
+
+    response = requests.get(url)
+    data = response.json()
+
+    # Process the response data
+    if response.status_code == 200:
+        app_list = data['applist']['apps']
+        game_ids = [app['appid'] for app in app_list]
+        print(game_ids)
+    else:
+        # Handle errors
+        error_message = data['error']['errorMessage']
+        print(f"Error: {error_message}")
+def save_appids_to_file(file_name):
+    # Steam API endpoint for getting the list of apps
+    url = 'http://api.steampowered.com/ISteamApps/GetAppList/v0002/'
+
+    response = requests.get(url)
+    data = response.json()
+
+    # Process the response data
+    if response.status_code == 200:
+        app_list = data['applist']['apps']
+        game_ids = [app['appid'] for app in app_list]
+
+        # Write game IDs to a JSON file
+        with open(file_name, 'w') as file:
+            json.dump(game_ids, file)
+    else:
+        # Handle errors
+        error_message = data['error']['errorMessage']
+        print(f"Error: {error_message}")
 
 def ProgressBar(title, count, total):
     '''
@@ -456,12 +494,16 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit()
 
-    content = get_url_content(BASEURL)
     raw_file_path = 'raw_output_steam'
-    if content:
-        save_content_to_file(content, raw_file_path)
-        extract_app_ids_from_file(raw_file_path, APPLIST_FILE)
+    clear_file_content(raw_file_path)
+    for key_word in KEY_WORDS :
+        for sort_model in SORT_MODELS:
+            url = BASEURL.format(sort_model, key_word)
+            content = get_url_content(url)
+            if content:
+                save_content_to_file(content, raw_file_path)
 
+    extract_app_ids_from_file(raw_file_path, APPLIST_FILE)
     dataset = LoadJSON(args.outfile)
     discarted = LoadJSON(DISCARTED_FILE)
     notreleased = LoadJSON(NOTRELEASED_FILE)
