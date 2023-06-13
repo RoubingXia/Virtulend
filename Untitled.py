@@ -1,35 +1,14 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
-pip install openai
-
-
-# In[3]:
-
-
-pip install numpy
-
-
-# In[4]:
-
-
-pip install -U scikit-learn
-
-
-# In[22]:
-
+#!/usr/bin/env pyth
 
 import openai
 import json
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from tabulate import tabulate
 
 # Your OpenAI API Key
-openai.api_key = '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'
-
+#openai.api_key = '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'
+openai.api_key = 'fakekey'
 # Function to format games as per the requirement
 def format_games(games):
     # convert the game data into a string format
@@ -111,19 +90,6 @@ def generate_candidates(query, games, top_n=10):
 
 
 
-
-
-# In[8]:
-
-
-pip install tabulate
-
-
-# In[9]:
-
-
-from tabulate import tabulate
-
 def print_game_table(games):
     table_data = []
     headers = ["Game", "Price"]
@@ -136,17 +102,8 @@ def print_game_table(games):
     print(tabulate(table_data, headers=headers, tablefmt="grid"))
 
 
-# In[30]:
-
-
-print_game_table(candidates)
-
-
-# In[29]:
-
-
 # For example:
-user_query = "I would like to learn aboutmm home electrification"
+user_query = "I would like to learn about home electrification"
 # Load the game data
 with open("games2.json", "r", encoding="utf-8") as f:
     data = json.load(f)
@@ -154,6 +111,7 @@ with open("games2.json", "r", encoding="utf-8") as f:
 candidates = generate_candidates(user_query, games, top_n=3)
 ranked_order = ranker(candidates, user_query)
 
+print_game_table(candidates)
 
 # In[ ]:
 

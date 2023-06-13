@@ -7,7 +7,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tabulate import tabulate
 
 # Your OpenAI API Key
-#openai.api_key = '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'
 openai.api_key = 'fakekey'
 # Function to format games as per the requirement
 def format_games(games):
