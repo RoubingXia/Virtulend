@@ -1,14 +1,19 @@
-#!/usr/bin/env pyth
-
-import openai
-import json
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 from tabulate import tabulate
+import numpy as np
+import json
+import openai
+from sklearn.metrics.pairwise import cosine_similarity
+import os
 
 # Your OpenAI API Key
-openai.api_key = 'fakekey'
-# Function to format games as per the requirement
+openai.api_key = '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'
+
+def generate_game_embeddings(games, model="text-embedding-ada-002", filename="embeddings.npy"):
+    game_ids = list(games.keys())
+    game_embeddings = [get_embedding(games[game_id]["detailed_description"]) for game_id in game_ids if games[game_id].get("detailed_description")]
+    np.save(filename, game_embeddings) # save embeddings to a file
+
+
 def format_games(games):
     # convert the game data into a string format
     formatted_games = '\n'.join([f'index: {i}, name: {game["name"]}, detailed_description: {game["detailed_description"]}' for i, game in enumerate(games)])
@@ -48,22 +53,18 @@ def ranker(games, user_query):
 
     return ranked_order
 
-
-
-
-
-
-
-# In[23]:
-
-
+def load_embeddings(filename="embeddings.npy"):
+    if os.path.exists(filename):
+        game_embeddings = np.load(filename)  # load embeddings from the file
+        return game_embeddings
+    else:
+        print("Embedding file does not exist.")
+        return None
 
 def get_embedding(text, model="text-embedding-ada-002"):
     text = text.replace("\n", " ")
     embedding = openai.Embedding.create(input=[text], model=model)["data"][0]["embedding"]
     return np.array(embedding)
-
-# In[24]:
 
 
 def generate_candidates(query, games, top_n=10):
@@ -73,7 +74,10 @@ def generate_candidates(query, games, top_n=10):
         return []
 
     game_ids = list(games.keys())
-    game_embeddings = np.array([get_embedding(games[game_id]["detailed_description"]) for game_id in game_ids if games[game_id].get("detailed_description")])
+    game_embeddings = load_embeddings()
+    if game_embeddings is None:
+        generate_game_embeddings(games)
+        game_embeddings = load_embeddings()
     if len(game_embeddings) == 0:
         return []
 
@@ -87,7 +91,33 @@ def generate_candidates(query, games, top_n=10):
     return candidates
 
 
+def generate_candidates_summary(query, games, top_n=10):
+    # Embed the query and games' descriptions
+    query_embedding = get_embedding(query)
+    if query_embedding is None:
+        return []
 
+    game_ids = list(games.keys())
+    game_embeddings = load_embeddings()
+    if game_embeddings is None:
+        generate_game_embeddings(games)
+        game_embeddings = load_embeddings()
+    if len(game_embeddings) == 0:
+        return []
+
+    # Compute cosine similarity between the query and games' descriptions
+    cosine_similarities = cosine_similarity(query_embedding.reshape(1, -1), game_embeddings)
+
+    # Get top_n games that are most similar to the query
+    top_game_indices = np.argsort(cosine_similarities)[0][::-1][:top_n]
+    candidates = [games[game_ids[i]] for i in top_game_indices]
+    table_data = []
+    headers = ["Game", "Price"]
+    for game in candidates:
+        game_name = game["name"]
+        game_price = game["price"]
+        table_data.append([game_name, game_price])
+    return table_data
 
 def fake_generate_candidates(query, games, top_n=10):
     game_ids = list(games.keys())

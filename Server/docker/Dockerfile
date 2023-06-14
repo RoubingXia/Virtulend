@@ -7,6 +7,7 @@ WORKDIR /app
 # Copy your app.py file to the Apache document root directory
 COPY *.py /app
 COPY *.json /app
+COPY *.npy /app
 COPY requirements.txt /app
 
 # Set the environment variable for Flask
