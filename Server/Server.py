@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from Recommendation import *
+from generate_candidates import *
 
 app = Flask(__name__)
 
@@ -13,11 +13,11 @@ def get_recommendations():
     with open("games2.json", "r", encoding="utf-8") as f:
         data = json.load(f)
         games = data
-    candidates = fake_generate_candidates(user_query, games, top_n=3)
-    fake_response_context = candidates
+    candidates = generate_candidates(user_query, games, top_n=3)
+    response_context = candidates
 
     # Return the response context as JSON
-    return jsonify({'response': fake_response_context})
+    return jsonify({'response': response_context})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
