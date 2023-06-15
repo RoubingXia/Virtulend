@@ -1,10 +1,11 @@
 import wixData from 'wix-data';
 import { fetch } from 'wix-fetch';
 // $w(`#name${i + 1}`).text = items[i].name;
+
 function callPythonApi(context) {
     // The URL of your Python API
     
-    const apiUrl = 'https://fd8b-2600-4041-44c4-7300-509-656a-1305-ddc2.ngrok-free.app/recommendation';
+    const apiUrl = 'https://bd4b-216-165-95-161.ngrok-free.app/recommendation';
     for (let i = 0; i < 3; i++) {
                 // Assuming you have elements with IDs like #name1, #price1, ...
                 $w(`#name${i + 1}`).text = ""; // name
@@ -21,30 +22,30 @@ function callPythonApi(context) {
     .then(response => response.json())
     .then(data => {
         // Access the array using the key "response"
-        const array = data.response;
-
-        // Check if the array has at least 1 element
-        if (array && array.length >= 3) {
-            // Display the first element on the page
-            for (let i = 0; i < 3; i++) {
-                // Assuming you have elements with IDs like #name1, #price1, ...
-                $w(`#name${i + 1}`).text = array[i][0]; // name
-                $w(`#name${i + 1}`).fontColor = "black";
-                $w(`#price${i + 1}`).text = array[i][1].toString(); // price
-                $w(`#price${i + 1}`).fontColor = "black";
-            }
-            $w(`#text${42}`).text = "Most Recommended Apps";
-        } else {
-            for (let i = 0; i < array.length; i++) {
-                // Assuming you have elements with IDs like #name1, #price1, ...
-                $w(`#name${i + 1}`).text = array[i][0]; // name
-                $w(`#price${i + 1}`).text = array[i][1].toString(); // price
-            }
-            for(let j=array.length; j<3;j++){
-                $w(`#name${j + 1}`).text = " "; // name
-                $w(`#price${j + 1}`).text = " "; // price
-            }
+        const apps = data.response;
+        $w(`#text${42}`).text = "Most Recommended Apps";
+        if (apps.length > 0) {
+            const appName = apps[0].name;
+            const appid = apps[0].appid;
+            const steamStoreUrl = `https://store.steampowered.com/app/${appid}/`;
+            $w("#image1").src = apps[0].header_image; // Set the src of image1 to header_image of the first app
+            $w(`#name${1}`).text = appName;
+            attachHyperlinkToText(appName, steamStoreUrl);
+            $w(`#price${1}`).text = apps[0].price.toString();
         }
+        if (apps.length > 1) {
+            $w("#image2").src = apps[1].header_image; // Set the src of image2 to header_image of the second app
+            $w(`#name${2}`).text = apps[1].name;
+            $w(`#price${2}`).text = apps[1].price.toString();
+        }
+
+        // Check if at least 3 apps were fetched
+        if (apps.length > 2) {
+            $w("#image3").src = apps[2].header_image; // Set the src of image3 to header_image of the third app
+            $w(`#name${3}`).text = apps[2].name;
+            $w(`#price${3}`).text = apps[2].price.toString();
+        }
+        
     })
     .catch(err => {
         console.log('Error calling Python API:', err);
@@ -52,6 +53,19 @@ function callPythonApi(context) {
     
 
 
+}
+function attachHyperlinkToText(appName, url) {
+    // Select the text element by its ID
+    const textElement = $w("#text1");
+
+    // Set the text of the element to the app name
+    textElement.text = appName;
+
+    // Add a click event handler to the text element
+    textElement.onClick(() => {
+        // Open the URL in a new tab when the text is clicked
+        wixLocation.to(url);
+    });
 }
 
 $w.onReady(function () {
