@@ -13,6 +13,7 @@ COPY requirements.txt /app
 # Set the environment variable for Flask
 ENV FLASK_APP=server.py
 RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN  pip install flask-cors
 # Expose the port on which the Flask app will run
 EXPOSE 5000
 

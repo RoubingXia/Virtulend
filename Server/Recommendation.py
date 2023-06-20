@@ -6,7 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import os
 
 # Your OpenAI API Key
-openai.api_key = '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'
+openai.api_key = 'skg'
 
 def generate_game_embeddings(games, model="text-embedding-ada-002", filename="embeddings.npy"):
     game_ids = list(games.keys())
