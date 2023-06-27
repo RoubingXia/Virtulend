@@ -23,3 +23,12 @@ The result files will be in Virtulend folder
  **games.json** : the information of each VR game in json format
 
  **notreleased.json** : App ids of games that haven't been released yet
+
+ ## Files Description : 
+ 
+ **ConvertToCSV.py** : a file to allow us to change code from json to csv.
+ **GPT-VR-Content-Ranker.ipynb** : a VR content recommender file
+ **fileSteamGamesScraper.py** : The Steamscraper file allows us to scrape VR data from Steam’s API
+ **Wix_Home_Page.js** : Code on the home page button to collect data to our database
+ **Wix_Recommendation_Page.js** : code on the website to run the RecVR
+ **requirements.txt** : requirements and libraries for the building the docker file
